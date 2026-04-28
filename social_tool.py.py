@@ -1,47 +1,38 @@
 import streamlit as st
 import google.generativeai as genai
+import os
 
-# إعداد مفتاح API من الإعدادات المتقدمة
-try:
+# إعداد الأمان والمفتاح
+if "API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["API_KEY"])
-except:
-    st.error("API Key missing! Please add it in Streamlit Secrets.")
-
-# تحديث الموديل لاستخدام أحدث نسخة مستقرة وتجنب خطأ v1beta
-model = genai.GenerativeModel('models/gemini-1.5-flash')
+else:
+    st.error("Missing API Key in Secrets!")
 
 st.title("📊 محلل السوشيال ميديا الذكي (VIP)")
 
-# التحقق من رمز التنشيط
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
+# قفل الحماية
+if "auth" not in st.session_state:
+    st.session_state.auth = False
 
-if not st.session_state.authenticated:
-    password = st.text_input("أدخل رمز التنشيط للاستمرار:", type="password")
+if not st.session_state.auth:
+    pwd = st.text_input("أدخل رمز التنشيط:", type="password")
     if st.button("تفعيل"):
-        if password == "PRO-2026":
-            st.session_state.authenticated = True
+        if pwd == "PRO-2026":
+            st.session_state.auth = True
             st.rerun()
         else:
-            st.error("الرمز غير صحيح!")
+            st.error("الرمز خطأ!")
 else:
-    if st.button("تسجيل الخروج"):
-        st.session_state.authenticated = False
-        st.rerun()
-
-    platform = st.selectbox("اختر المنصة", ["YouTube", "Instagram", "Facebook", "TikTok"])
-    url = st.text_input(f"ضع رابط {platform} هنا:")
-
-    if st.button("🚀 ابدأ التحليل الآن"):
+    # واجهة التطبيق بعد التفعيل
+    url = st.text_input("ضع رابط الفيديو أو المنشور هنا:")
+    if st.button("🚀 ابدأ التحليل"):
         if url:
-            with st.spinner("جاري التحليل باستخدام الذكاء الاصطناعي..."):
+            with st.spinner("ذكاء Gemini الاصطناعي يحلل الآن..."):
                 try:
-                    # طلب التحليل من Gemini
-                    prompt = f"قم بتحليل هذا الرابط {url} من منصة {platform} واستخرج أهم النقاط والمشاعر العامة."
-                    response = model.generate_content(prompt)
-                    st.success("تم التحليل بنجاح!")
+                    # السطر السحري لحل مشكلة 404
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    response = model.generate_content(f"حلل هذا الرابط بعمق واذكر النقاط الأساسية: {url}")
+                    st.success("التحليل المكتمل:")
                     st.write(response.text)
                 except Exception as e:
-                    st.error(f"حدث خطأ: {e}")
-        else:
-            st.warning("يرجى وضع الرابط أولاً!")
+                    st.error(f"تنبيه تقني: {e}")
