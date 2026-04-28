@@ -1,58 +1,64 @@
 import streamlit as st
 import google.generativeai as genai
 
-# إعداد مفتاح API من Secrets
+# إعداد الصفحة
+st.set_page_config(page_title="محلل السوشيال ميديا الذكي", page_icon="📊", layout="centered")
+
+# جلب مفتاح API من Secrets
 if "API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["API_KEY"])
 else:
-    st.error("Missing API Key! Please add it in Streamlit Secrets.")
+    st.error("خطأ: مفتاح API غير موجود في إعدادات Secrets!")
 
-st.set_page_config(page_title="محلل السوشيال ميديا الذكي", page_icon="📊")
-
+# واجهة التطبيق
 st.title("📊 محلل السوشيال ميديا الذكي (VIP)")
 
-# نظام الحماية (رمز التنشيط)
+# نظام التحقق من رمز التنشيط
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
+    st.subheader("🔐 تفعيل الأداة")
     password = st.text_input("أدخل رمز التنشيط للاستمرار:", type="password")
     if st.button("تفعيل"):
         if password == "PRO-2026":
             st.session_state.authenticated = True
             st.rerun()
         else:
-            st.error("الرمز غير صحيح!")
+            st.error("الرمز غير صحيح! راجع المطور.")
 else:
-    # --- بداية واجهة اختيار المنصة (التي كانت ناقصة) ---
+    # شريط جانبي لتسجيل الخروج
     st.sidebar.success("تم التنشيط بنجاح ✅")
     if st.sidebar.button("تسجيل الخروج"):
         st.session_state.authenticated = False
         st.rerun()
 
+    # --- واجهة اختيار المنصة ---
+    st.markdown("---")
     platform = st.selectbox(
         "اختر المنصة التي تريد تحليلها:",
         ["YouTube", "Facebook", "Instagram", "TikTok"]
     )
     
-    url = st.text_input(f"ضع رابط {platform} هنا:")
-    # --- نهاية واجهة الاختيار ---
+    url = st.text_input(f"ضع رابط {platform} هنا:", placeholder="https://...")
 
     if st.button("🚀 ابدأ التحليل الآن"):
         if url:
-            with st.spinner(f"جاري تحليل رابط {platform} باستخدام الذكاء الاصطناعي..."):
+            with st.spinner(f"جاري تحليل محتوى {platform}..."):
                 try:
-                    # استخدام النسخة المستقرة حصراً لتجنب خطأ 404
+                    # استدعاء الموديل بنسخة مستقرة
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     
-                    prompt = f"قم بتحليل هذا الرابط {url} من منصة {platform}. استخرج الأفكار الرئيسية، نبرة المحتوى، والمشاعر العامة للجمهور."
+                    prompt = f"قم بتحليل هذا الرابط {url} من منصة {platform}. استخرج النقاط الرئيسية، نبرة المتحدث، وتوقعاتك لتفاعل الجمهور."
                     
                     response = model.generate_content(prompt)
                     
-                    st.success("تم التحليل بنجاح!")
-                    st.markdown("### 📝 تقرير التحليل:")
+                    st.success("✅ اكتمل التحليل!")
+                    st.markdown("### 📝 التقرير الذكي:")
                     st.write(response.text)
+                    
                 except Exception as e:
-                    st.error(f"حدث خطأ تقني: {e}")
+                    st.error(f"تنبيه تقني: {e}")
+                    st.info("نصيحة: تأكد من أن مفتاح API صحيح ومن عمل Reboot للتطبيق.")
         else:
-            st.warning("يرجى وضع الرابط أولاً!")
+            st.warning("من فضلك ضع الرابط أولاً!")
