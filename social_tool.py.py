@@ -45,7 +45,7 @@ else:
         else:
             with st.spinner("جاري التحليل..."):
                 try:
-                    model = genai.GenerativeModel("gemini-1.5-flash")
+                    model = genai.GenerativeModel(model_name="gemini-1.5-flash")
                     prompt = f"Create a professional report for {platform} post: {url}. Stats: Views={views}, Likes={likes}, Comments={comments}. Content: {description}"
                     response = model.generate_content(prompt)
                     
