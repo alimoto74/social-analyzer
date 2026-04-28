@@ -5,7 +5,7 @@ import google.generativeai as genai
 genai.configure(api_key="AIzaSyDvgGljJPtGBkZwFvCO4QHAeGKQmVsxKaw")
 
 # 2. تعريف الموديل
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 st.set_page_config(page_title="محلل السوشيال ميديا المحمي", layout="wide")
 
