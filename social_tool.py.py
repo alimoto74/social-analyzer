@@ -8,7 +8,7 @@ except:
     st.error("API Key missing! Please add it in Streamlit Secrets.")
 
 # تحديث الموديل لاستخدام أحدث نسخة مستقرة وتجنب خطأ v1beta
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('models/gemini-1.5-flash')
 
 st.title("📊 محلل السوشيال ميديا الذكي (VIP)")
 
